@@ -38,28 +38,32 @@ var Emylie = (function(){
 		window.location = link;
 	}
 
-	ns.EventTarget = function(){};
-	ns.EventTarget.prototype._listeners = {};
-	ns.EventTarget.prototype.listen = function(ev, callback, context){
-		if(context == undefined){context = this;}
+	ns.EventTarget = (function(){
+		var constructor = function(){};
 
-		if(this._listeners[ev] == undefined){
-			this._listeners[ev] = [[context, callback]];
-		}else{
-			this._listeners[ev].push([context, callback]);
-		}
-	};
-	ns.EventTarget.prototype.trigger = function(ev, context){
+		constructor.prototype._listeners = {};
+		constructor.prototype.listen = function(ev, callback, context){
+			if(context == undefined){context = this;}
 
-		ev.target = this;
-		if(this._listeners[ev.type] != undefined){
-			for(var i in this._listeners[ev.type]){
-				if(typeof this._listeners[ev.type][i][1] == 'function'){
-					this._listeners[ev.type][i][1].call(this._listeners[ev.type][i][0], ev);
+			if(this._listeners[ev] == undefined){
+				this._listeners[ev] = [[context, callback]];
+			}else{
+				this._listeners[ev].push([context, callback]);
+			}
+		};
+		constructor.prototype.trigger = function(ev, context){
+			ev.target = this;
+			if(this._listeners[ev.type] != undefined){
+				for(var i in this._listeners[ev.type]){
+					if(typeof this._listeners[ev.type][i][1] == 'function'){
+						this._listeners[ev.type][i][1].call(this._listeners[ev.type][i][0], ev);
+					}
 				}
 			}
-		}
-	};
+		};
+
+		return constructor;
+	})();
 
 	ns.Router = (function(){
 
@@ -121,15 +125,19 @@ var Emylie = (function(){
 	ns.App = (function(){
 
 		var _routers = [];
+		var _apps = [];
 
 		var constructor = function(){
 			window.addEventListener('hashchange', (function(e){
-				this.trigger(new CustomEvent('hash.changed', {
-					detail: {
-						hash: e.newURL.split('#')[1]
-					}
-				}), this);
+				this.route(e.newURL.split('#')[1]);
 			}).bind(this));
+
+			this.ViewModelsPath = '';
+			this.ViewModels = {};
+			this.ViewModelsCount = 0;
+			this.ready = false;
+
+			_apps.push(this);
 		}
 		constructor.prototype = new ns.EventTarget();
 
@@ -149,8 +157,64 @@ var Emylie = (function(){
 				}
 			}
 
+			this.trigger(new CustomEvent('app.routed', {
+				detail: {
+					path: path,
+					route: route
+				}
+			}), this);
+
 			return route;
 		};
+
+		constructor.prototype.init = function(){
+			this.route(window.location.hash.substr(1));
+		}
+
+		constructor.prototype.loadView = function(path){
+			this.ViewModelsCount++;
+			var parts = path.split('.');
+			this.ViewModels[parts[0]] = {};
+			document.loadJS(this.ViewModelsPath + '/' + path.replace('.', '/') + '.js');
+		}
+
+		constructor.prototype.registerView = function(name, constructor){
+			var parts = name.split('.');
+			this.ViewModels[parts[0]][parts[1]] = constructor;
+			this.ViewModelsCount--;
+
+			if(
+				this.ViewModelsCount == 0
+			 && document.body != undefined
+			 && !_apps[i].ready
+			){
+				_apps[i].ready = true;
+				this.trigger(new CustomEvent('app.ready'), this);
+			}
+		}
+
+		document.addEventListener('readystatechange', function(e){
+			if(document.body != undefined){
+				for(var i in _apps){
+					if(_apps[i].ViewModelsCount == 0 && !_apps[i].ready){
+						_apps[i].ready = true;
+						_apps[i].trigger(new CustomEvent('app.ready'), _apps[i]);
+					}
+				}
+			}
+		});
+
+		return constructor;
+	})();
+
+	ns.View = (function(){
+
+		var constructor = function(){}
+		constructor.prototype = new ns.EventTarget();
+
+		constructor.prototype.render = function(){
+			document.body.innerHTML = 'sup';
+		}
 
 		return constructor;
 	})();
