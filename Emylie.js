@@ -218,7 +218,7 @@ var Emylie = (function(){
 		constructor.prototype = new ns.EventTarget();
 
 		constructor.prototype.render = function(){
-			document.body.innerHTML = Math.random()*30;
+			document.body.innerHTML = Math.random()*10;
 		}
 
 		return constructor;
