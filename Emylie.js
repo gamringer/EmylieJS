@@ -168,7 +168,12 @@ var Emylie = (function(){
 		};
 
 		constructor.prototype.init = function(){
-			this.route(window.location.hash.substr(1));
+			var route = window.location.hash.substr(1);
+			if(route == ''){
+				route = '/';
+			}
+
+			return this.route(route);
 		}
 
 		constructor.prototype.loadView = function(path){
@@ -213,7 +218,7 @@ var Emylie = (function(){
 		constructor.prototype = new ns.EventTarget();
 
 		constructor.prototype.render = function(){
-			document.body.innerHTML = 'sup';
+			document.body.innerHTML = Math.random();
 		}
 
 		return constructor;
