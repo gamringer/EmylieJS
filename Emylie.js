@@ -170,7 +170,7 @@ var Emylie = (function(){
 		constructor.prototype.init = function(){
 			var route = window.location.hash.substr(1);
 			if(route == ''){
-				route = '/';
+				return this.redirect('/');
 			}
 
 			return this.route(route);
