@@ -243,12 +243,39 @@ var Emylie = (function(){
 
 	ns.View = (function(){
 
-		var constructor = function(){}
+		var constructor = function(){};
 		constructor.prototype = new ns.EventTarget();
 
+		constructor.prototype.templateURL = null;
+		constructor.prototype.templateLoaded = false;
+		constructor.prototype.template = '';
+		constructor.prototype.dom = null;
+
+		constructor.prototype.init = function(){
+			this.dom = document.createElement('div');
+			if(this.templateLoaded){
+				this.dom.innerHTML = this.template;
+			}else{
+				this.listen('view.template.loaded', function(e){
+					this.dom.innerHTML = this.template;
+				});
+			}
+		};
+
+		constructor.prototype.loadTemplate = function(){
+			var foo = new ns.HTTPRequest('get', this.templateURL);
+			foo.addEventListener('loadend', (function(e){
+				this.template = e.target.response;
+				this.templateLoaded = true;
+				this.trigger(new CustomEvent('view.template.loaded'));
+			}).bind(this));
+			foo.send();
+		};
+
 		constructor.prototype.render = function(){
-			document.body.innerHTML = Math.floor(Math.random() * 10);
-		}
+			document.body.innerHTML = '';
+			document.body.appendChild(this.dom);
+		};
 
 		return constructor;
 	})();
