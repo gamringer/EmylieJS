@@ -65,6 +65,35 @@ var Emylie = (function(){
 		return constructor;
 	})();
 
+	ns.HTTPRequest = (function(){
+		var constructor = function(method, uri, async){
+			if(async == undefined){async = true;}
+
+			this._dataType = 'urlformatted';
+			this._method = method;
+
+			this._xmlrequest = new XMLHttpRequest();
+			this._xmlrequest.open(method, uri, async);
+		};
+
+		constructor.prototype.send = function(){
+			if(this._dataType == 'urlformatted' && this._method == 'post'){
+				this._xmlrequest.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			}
+			this._xmlrequest.send();
+		};
+
+		constructor.prototype.addEventListener = function(type, listener){
+			this._xmlrequest.addEventListener(type, listener);
+		};
+
+		constructor.prototype.removeEventListener = function(type, listener){
+			this._xmlrequest.removeEventListener(type, listener);
+		};
+
+		return constructor;
+	})();
+
 	ns.Router = (function(){
 
 		var constructor = function(routes){
