@@ -264,13 +264,13 @@ var Emylie = (function(){
 		};
 
 		constructor.prototype.loadTemplate = function(){
-			var foo = new ns.HTTPRequest('get', this.templateURL);
-			foo.addEventListener('loadend', (function(e){
+			var request = new ns.HTTPRequest('get', this.templateURL);
+			request.addEventListener('loadend', (function(e){
 				this.template = e.target.response;
 				this.templateLoaded = true;
 				this.trigger(new CustomEvent('view.template.loaded'));
 			}).bind(this));
-			foo.send();
+			request.send();
 		};
 
 		constructor.prototype.render = function(element){
