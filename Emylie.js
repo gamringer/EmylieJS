@@ -253,6 +253,7 @@ var Emylie = (function(){
 
 		constructor.prototype.init = function(){
 			this.dom = document.createElement('div');
+			this.dom.addClass('View-' + this.name.replace('.', '-'));
 			if(this.templateLoaded){
 				this.dom.innerHTML = this.template;
 			}else{
