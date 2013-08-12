@@ -78,7 +78,7 @@ var Emylie = (function(){
 
 		constructor.prototype.send = function(){
 			if(this._dataType == 'urlformatted' && this._method == 'post'){
-				this._xmlrequest.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				this._xmlrequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 			}
 			this._xmlrequest.send();
 		};
@@ -273,9 +273,11 @@ var Emylie = (function(){
 			foo.send();
 		};
 
-		constructor.prototype.render = function(){
-			document.body.innerHTML = '';
-			document.body.appendChild(this.dom);
+		constructor.prototype.render = function(element){
+			if(element == undefined){element = document.body;}
+
+			element.innerHTML = '';
+			element.appendChild(this.dom);
 		};
 
 		return constructor;
