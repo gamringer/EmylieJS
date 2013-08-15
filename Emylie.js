@@ -2,7 +2,7 @@ var Emylie = (function(){
 	var ns = {};
 
 	Element.prototype.addClass = function(item){
-		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '') + item;
+		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '') + ' ' + item;
 
 		return this;
 	}
@@ -161,10 +161,24 @@ var Emylie = (function(){
 				this.route(e.newURL.split('#')[1]);
 			}).bind(this));
 
+			window.addEventListener('resize', (function(e){
+				this.ui.width = e.target.innerWidth;
+				this.ui.height = e.target.innerHeight;
+				this.trigger(new CustomEvent('app.resized', {'detail':{
+					'width': e.target.innerWidth,
+					'height': e.target.innerHeight
+				}}));
+			}).bind(this));
+
 			this.ViewModelsPath = '';
 			this.ViewModels = {};
 			this.ViewModelsCount = 0;
 			this.ready = false;
+
+			this.ui = {
+				width: window.innerWidth,
+				height: window.innerHeight
+			};
 
 			_apps.push(this);
 		}
@@ -284,6 +298,6 @@ var Emylie = (function(){
 	})();
 
 	document.getElementsByTagName('html')[0].removeClass('no-js');
-	
+
 	return ns;
 })();
