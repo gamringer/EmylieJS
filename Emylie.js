@@ -130,6 +130,7 @@ var Emylie = (function(){
 					for(var j in this._routes[i].options){
 						route[j] = this._routes[i].options[j];
 					}
+					
 					for(var j in this._routes[i].routeParts){
 						if(this._routes[i].routeParts[j][0] == ':'){
 							route[this._routes[i].routeParts[j].substr(1)] = pathParts[j];
@@ -175,6 +176,7 @@ var Emylie = (function(){
 			this.ViewModelsPath = '';
 			this.ViewModels = {};
 			this.ViewModelsCount = 0;
+			this.layouts = {};
 			this.ready = false;
 
 			this.ui = {
@@ -224,14 +226,39 @@ var Emylie = (function(){
 		constructor.prototype.loadView = function(path){
 			this.ViewModelsCount++;
 			var parts = path.split('.');
-			this.ViewModels[parts[0]] = {};
+			if(this.ViewModels[parts[0]] == undefined){
+				this.ViewModels[parts[0]] = {};
+			}
 			document.loadJS(this.ViewModelsPath + '/' + path.replace('.', '/') + '.js');
 		}
 
-		constructor.prototype.registerView = function(name, constructor){
+		constructor.prototype.registerView = function(name, viewConstructor){
 			var parts = name.split('.');
-			this.ViewModels[parts[0]][parts[1]] = constructor;
+			this.ViewModels[parts[0]][parts[1]] = viewConstructor;
 			this.ViewModelsCount--;
+
+			this.trigger(new CustomEvent('view.registered-'+name, {
+				detail: {
+					'constructor': viewConstructor
+				}
+			}));
+
+			this.trigger(new CustomEvent('view.registered', {
+				detail: {
+					'constructor': viewConstructor,
+					'name': name
+				}
+			}));
+			if(viewConstructor.prototype.layoutName != null){
+				var layoutnameParts = viewConstructor.prototype.layoutName.split('.');
+				if(this.ViewModels[layoutnameParts[0]] == undefined || this.ViewModels[layoutnameParts[0]][layoutnameParts[1]] == undefined){
+					this.listen('view.registered-'+viewConstructor.prototype.layoutName, function(e){
+						viewConstructor.prototype.layoutConstructor = e.detail.constructor
+					});
+				}else{
+					viewConstructor.prototype.layoutConstructor = this.ViewModels[layoutnameParts[0]][layoutnameParts[1]];
+				}
+			}
 
 			if(
 				this.ViewModelsCount == 0
@@ -266,6 +293,10 @@ var Emylie = (function(){
 		constructor.prototype.templateLoaded = false;
 		constructor.prototype.template = '';
 		constructor.prototype.dom = null;
+		constructor.prototype.layout = null;
+		constructor.prototype.layoutName = null;
+		constructor.prototype.layoutConstructor = null;
+		constructor.prototype.childContentContainerDom = undefined;
 
 		constructor.prototype.init = function(){
 			this.dom = document.createElement('div');
@@ -277,6 +308,8 @@ var Emylie = (function(){
 					this.dom.innerHTML = this.template;
 				});
 			}
+
+			this.childContentContainerDom = this.dom.getElementsByClassName('child-container')[0];
 		};
 
 		constructor.prototype.loadTemplate = function(){
@@ -291,9 +324,17 @@ var Emylie = (function(){
 
 		constructor.prototype.render = function(element){
 			if(element == undefined){element = document.body;}
+			
+			if(this.layoutConstructor != null){
+				this.layout = new this.layoutConstructor();
+				this.layout.childContentContainerDom.innerHTML = '';
+				this.layout.childContentContainerDom.appendChild(this.dom);
+				this.layout.render(element);
+			}else{
+				element.innerHTML = '';
+				element.appendChild(this.dom);
+			}
 
-			element.innerHTML = '';
-			element.appendChild(this.dom);
 		};
 
 		return constructor;
