@@ -141,7 +141,9 @@ var Emylie = (function(){
 						}
 					}
 
+					if(route != null){
 						return route;
+					}
 				}
 			}
 
