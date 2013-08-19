@@ -297,6 +297,7 @@ var Emylie = (function(){
 		constructor.prototype.layoutName = null;
 		constructor.prototype.layoutConstructor = null;
 		constructor.prototype.childContentContainerDom = undefined;
+		constructor.prototype.resize = function(){};
 
 		constructor.prototype.init = function(){
 			this.dom = document.createElement('div');
@@ -324,15 +325,17 @@ var Emylie = (function(){
 
 		constructor.prototype.render = function(element){
 			if(element == undefined){element = document.body;}
-			
+
 			if(this.layoutConstructor != null){
 				this.layout = new this.layoutConstructor();
 				this.layout.childContentContainerDom.innerHTML = '';
 				this.layout.childContentContainerDom.appendChild(this.dom);
 				this.layout.render(element);
+				this.resize();
 			}else{
 				element.innerHTML = '';
 				element.appendChild(this.dom);
+				this.resize();
 			}
 
 		};
