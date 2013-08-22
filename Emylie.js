@@ -331,12 +331,12 @@ var Emylie = (function(){
 				this.layout.childContentContainerDom.innerHTML = '';
 				this.layout.childContentContainerDom.appendChild(this.dom);
 				this.layout.render(element);
-				this.resize();
 			}else{
 				element.innerHTML = '';
 				element.appendChild(this.dom);
-				this.resize();
 			}
+			
+			this.resize();
 
 		};
 
