@@ -225,16 +225,13 @@ var Emylie = (function(){
 
 		constructor.prototype.loadView = function(path){
 			this.ViewModelsCount++;
-			var parts = path.split('.');
-			if(this.ViewModels[parts[0]] == undefined){
-				this.ViewModels[parts[0]] = {};
-			}
+			this.ViewModels[path] = null;
+
 			document.loadJS(this.ViewModelsPath + '/' + path.replace('.', '/') + '.js');
 		}
 
 		constructor.prototype.registerView = function(name, viewConstructor){
-			var parts = name.split('.');
-			this.ViewModels[parts[0]][parts[1]] = viewConstructor;
+			this.ViewModels[name] = viewConstructor;
 			this.ViewModelsCount--;
 
 			this.trigger(new CustomEvent('view.registered-'+name, {
@@ -250,13 +247,15 @@ var Emylie = (function(){
 				}
 			}));
 			if(viewConstructor.prototype.layoutName != null){
-				var layoutnameParts = viewConstructor.prototype.layoutName.split('.');
-				if(this.ViewModels[layoutnameParts[0]] == undefined || this.ViewModels[layoutnameParts[0]][layoutnameParts[1]] == undefined){
+				if(
+					this.ViewModels[viewConstructor.prototype.layoutName] == undefined
+				 || this.ViewModels[viewConstructor.prototype.layoutName] == null
+				){
 					this.listen('view.registered-'+viewConstructor.prototype.layoutName, function(e){
 						viewConstructor.prototype.layoutConstructor = e.detail.constructor
 					});
 				}else{
-					viewConstructor.prototype.layoutConstructor = this.ViewModels[layoutnameParts[0]][layoutnameParts[1]];
+					viewConstructor.prototype.layoutConstructor = this.ViewModels[viewConstructor.prototype.layoutName];
 				}
 			}
 
@@ -310,7 +309,10 @@ var Emylie = (function(){
 				});
 			}
 
-			this.childContentContainerDom = this.dom.getElementsByClassName('child-container')[0];
+			var childrenSet = this.dom.getElementsByClassName('child-container');
+			if(childrenSet.length > 0){
+				this.childContentContainerDom = childrenSet[0];
+			}
 		};
 
 		constructor.prototype.loadTemplate = function(){
