@@ -177,7 +177,6 @@ var Emylie = (function(){
 			this.ViewModels = {};
 			this.ViewModelsCount = 0;
 			this.layouts = {};
-			this.ready = false;
 
 			this.ui = {
 				width: window.innerWidth,
@@ -223,11 +222,17 @@ var Emylie = (function(){
 			return this.route(route);
 		}
 
-		constructor.prototype.loadView = function(path){
+		constructor.prototype.requireView = function(path){
 			this.ViewModelsCount++;
 			this.ViewModels[path] = null;
+		}
 
-			document.loadJS(this.ViewModelsPath + '/' + path.replace('.', '/') + '.js');
+		constructor.prototype.loadViews = function(path){
+			for(var i in this.ViewModels){
+				if(this.ViewModels[i] == null){
+					document.loadJS(this.ViewModelsPath + '/' + i.replace('.', '/') + '.js');
+				}
+			}
 		}
 
 		constructor.prototype.registerView = function(name, viewConstructor){
@@ -259,26 +264,16 @@ var Emylie = (function(){
 				}
 			}
 
-			if(
-				this.ViewModelsCount == 0
-			 && document.body != undefined
-			 && !_apps[i].ready
-			){
-				_apps[i].ready = true;
-				this.trigger(new CustomEvent('app.ready'), this);
-			}
-		}
-
-		document.addEventListener('readystatechange', function(e){
-			if(document.body != undefined){
-				for(var i in _apps){
-					if(_apps[i].ViewModelsCount == 0 && !_apps[i].ready){
-						_apps[i].ready = true;
-						_apps[i].trigger(new CustomEvent('app.ready'), _apps[i]);
-					}
+			if(this.ViewModelsCount == 0){
+				if(document.readyState != 'complete'){
+					document.addEventListener('DOMContentLoaded', (function(e){
+						this.trigger(new CustomEvent('app.ready'), this);
+					}).bind(this));
+				}else{
+					this.trigger(new CustomEvent('app.ready'), this);
 				}
 			}
-		});
+		}
 
 		return constructor;
 	})();
