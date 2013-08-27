@@ -268,11 +268,12 @@ var Emylie = (function(){
 					viewConstructor.prototype.layoutConstructor = this.ViewModels[viewConstructor.prototype.layoutName];
 				}
 			}
-
 			if(this.ViewModelsCount == 0){
 				if(document.readyState != 'complete'){
-					document.addEventListener('DOMContentLoaded', (function(e){
-						this.trigger(new CustomEvent('app.ready'), this);
+					document.addEventListener('readystatechange', (function(e){
+						if(document.readyState == 'complete'){
+							this.trigger(new CustomEvent('app.ready'), this);
+						}
 					}).bind(this));
 				}else{
 					this.trigger(new CustomEvent('app.ready'), this);
@@ -285,7 +286,12 @@ var Emylie = (function(){
 
 	ns.View = (function(){
 
-		var constructor = function(){};
+		var constructor = function(child){
+			this.initEvents();
+			this.listen('view.template.loaded', function(){
+				XBTX.registerView(this.name, child);
+			});
+		};
 		constructor.prototype = new ns.EventTarget();
 
 		constructor.prototype.templateURL = null;
@@ -301,13 +307,7 @@ var Emylie = (function(){
 		constructor.prototype.init = function(){
 			this.dom = document.createElement('div');
 			this.dom.addClass('View-' + this.name.replace('.', '-'));
-			if(this.templateLoaded){
-				this.dom.innerHTML = this.template;
-			}else{
-				this.listen('view.template.loaded', function(e){
-					this.dom.innerHTML = this.template;
-				});
-			}
+			this.dom.innerHTML = this.template;
 
 			var childrenSet = this.dom.getElementsByClassName('child-container');
 			if(childrenSet.length > 0){
