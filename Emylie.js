@@ -39,9 +39,11 @@ var Emylie = (function(){
 	}
 
 	ns.EventTarget = (function(){
-		var constructor = function(){};
+		var constructor = function(){
+			this._listeners = {};
+		};
 
-		constructor.prototype._listeners = {};
+		constructor.prototype._listeners = null;
 		constructor.prototype.listen = function(ev, callback, context){
 			if(context == undefined){context = this;}
 
@@ -60,6 +62,9 @@ var Emylie = (function(){
 					}
 				}
 			}
+		};
+		constructor.prototype.initEvents = function(){
+			this._listeners = {};
 		};
 
 		return constructor;
