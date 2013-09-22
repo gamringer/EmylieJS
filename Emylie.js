@@ -38,6 +38,13 @@ var Emylie = (function(){
 		window.location = link;
 	}
 
+	Element.prototype.empty = function(){
+
+		this.innerHTML = '';
+
+		return this;
+	};
+
 	ns.EventTarget = (function(){
 		var constructor = function(){
 			this._listeners = {};
@@ -180,6 +187,7 @@ var Emylie = (function(){
 
 			this.ViewModelsPath = '';
 			this.ViewModels = {};
+			this.ViewStoragePatterns = {};
 			this.ViewModelsCount = 0;
 			this.layouts = {};
 
@@ -187,6 +195,8 @@ var Emylie = (function(){
 				width: window.innerWidth,
 				height: window.innerHeight
 			};
+
+			this.viewFactory = new ns.ViewFactory(this);
 
 			_apps.push(this);
 		}
@@ -256,6 +266,9 @@ var Emylie = (function(){
 					'name': name
 				}
 			}));
+
+			viewConstructor.prototype.app = this;
+
 			if(viewConstructor.prototype.layoutName != null){
 				if(
 					this.ViewModels[viewConstructor.prototype.layoutName] == undefined
@@ -284,6 +297,34 @@ var Emylie = (function(){
 		return constructor;
 	})();
 
+	ns.ViewFactory = (function(){
+
+
+		var constructor = function(app){
+			this.storage = {};
+			this.app = app;
+		};
+
+		constructor.prototype.produce = function(viewName, route){
+			var viewModel = this.app.ViewModels[viewName];
+			var storagePattern = this.app.ViewStoragePatterns[viewName];
+
+			storageAddress = viewName;
+			if(storagePattern != undefined){
+				storageAddress = storagePattern(route);
+			}
+
+			if(this.storage[storageAddress] == undefined){
+				this.storage[storageAddress] = new viewModel();
+			}
+
+			return this.storage[storageAddress];
+		};
+
+		return constructor;
+
+	})();
+
 	ns.View = (function(){
 
 		var constructor = function(child){
@@ -298,13 +339,13 @@ var Emylie = (function(){
 		constructor.prototype.templateLoaded = false;
 		constructor.prototype.template = '';
 		constructor.prototype.dom = null;
-		constructor.prototype.layout = null;
+		constructor.prototype.app = null;
 		constructor.prototype.layoutName = null;
-		constructor.prototype.layoutConstructor = null;
 		constructor.prototype.childContentContainerDom = undefined;
 		constructor.prototype.resize = function(){};
 
 		constructor.prototype.init = function(){
+
 			this.dom = document.createElement('div');
 			this.dom.addClass('View-' + this.name.replace('.', '-'));
 			this.dom.innerHTML = this.template;
@@ -328,18 +369,15 @@ var Emylie = (function(){
 		constructor.prototype.render = function(element){
 			if(element == undefined){element = document.body;}
 
-			if(this.layoutConstructor != null){
-				this.layout = new this.layoutConstructor();
-				this.layout.childContentContainerDom.innerHTML = '';
-				this.layout.childContentContainerDom.appendChild(this.dom);
-				this.layout.render(element);
+			if(this.layoutName != null){
+				var layout = this.app.viewFactory.produce(this.layoutName);
+				layout.childContentContainerDom.empty().appendChild(this.dom);
+				layout.render(element);
 			}else{
-				element.innerHTML = '';
-				element.appendChild(this.dom);
+				element.empty().appendChild(this.dom);
 			}
 			
 			this.resize();
-
 		};
 
 		return constructor;
