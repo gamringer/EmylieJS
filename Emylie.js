@@ -1,6 +1,10 @@
 var Emylie = (function(){
 	var ns = {};
 
+	ns.getStorage = function(){
+		return window.localStorage;
+	}
+
 	Element.prototype.addClass = function(item){
 		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '') + ' ' + item;
 
@@ -11,6 +15,52 @@ var Emylie = (function(){
 
 		return this;
 	}
+
+	Element.prototype.empty = function(){
+
+		this.innerHTML = '';
+
+		return this;
+	};
+
+	Element.prototype.animate = function(properties, duration){
+
+		if(duration == undefined || typeof duration != 'number'){
+			duration = 500;
+		}
+
+		var deltas = {};
+		for(var property in properties){
+
+			var match = window.getComputedStyle(this)[property].match(/^\d+(\w+)$/);
+			if(match != null){
+				deltas[property] = {
+					original: parseInt(match[0]),
+					target: properties[property],
+					suffix: match[1]
+				}
+
+			}else{
+				var match = window.getComputedStyle(this)[property].match(/^rgb\((\d+), (\d+), (\d+)\)$/);
+				console.log('Color interpolation, TODO...', match);
+			}
+		}
+
+		var interpolation = new Emylie.interpolation(1000);
+
+		interpolation.listen('interpolation.update', (function(e){
+			for(var property in properties){
+				if(deltas[property] != undefined){
+					if(deltas[property].suffix != undefined){
+						this.style[property] = deltas[property].original + deltas[property].target - deltas[property].original * e.detail.progress + deltas[property].suffix;
+					}
+				}
+			}
+		}).bind(this));
+
+		interpolation.start();
+		return this;
+	};
 
 	HTMLDocument.prototype.loadJS = function(link, reload){
 		if(reload == undefined){reload = false;}
@@ -38,13 +88,6 @@ var Emylie = (function(){
 		window.location = link;
 	}
 
-	Element.prototype.empty = function(){
-
-		this.innerHTML = '';
-
-		return this;
-	};
-
 	ns.EventTarget = (function(){
 		var constructor = function(){
 			this._listeners = {};
@@ -60,8 +103,9 @@ var Emylie = (function(){
 				this._listeners[ev].push([context, callback]);
 			}
 		};
-		constructor.prototype.trigger = function(ev, context){
+		constructor.prototype.trigger = function(ev){
 			ev.target = this;
+			
 			if(this._listeners[ev.type] != undefined){
 				for(var i in this._listeners[ev.type]){
 					if(typeof this._listeners[ev.type][i][1] == 'function'){
@@ -73,6 +117,44 @@ var Emylie = (function(){
 		constructor.prototype.initEvents = function(){
 			this._listeners = {};
 		};
+
+		return constructor;
+	})();
+
+	ns.interpolation = (function(){
+
+		var constructor = function(duration, mode){
+			if(mode != undefined){
+				this.duration = mode;
+			}
+
+			if(duration != undefined){
+				this.duration = duration;
+			}
+		};
+		constructor.prototype = new ns.EventTarget();
+
+		constructor.prototype.duration = 500;
+		constructor.prototype.mode = 'linear';
+		constructor.prototype.interval = null;
+		constructor.prototype.progress = 0;
+		constructor.prototype.tick = 0;
+		constructor.prototype.tickInterval = 17;
+		constructor.prototype.start = function(){
+			this.maxTick = Math.ceil(this.duration / this.tickInterval);
+			this.interval = setInterval(_makeProgress.bind(this), this.tickInterval);
+		};
+
+		var _makeProgress = function(){
+			this.progress = ++this.tick / this.maxTick;
+			
+			this.trigger(new CustomEvent('interpolation.update', {detail: {progress: this.progress}}));
+
+			if(this.progress >= 1){
+				clearInterval(this.interval);
+				this.trigger(new CustomEvent('interpolation.finish'));
+			}
+		}
 
 		return constructor;
 	})();
@@ -209,6 +291,10 @@ var Emylie = (function(){
 		constructor.prototype.registerRouter = function(router){
 			_routers.push(router);
 		};
+
+		constructor.prototype.refresh = function(){
+			this.route(window.location.hash.substring(1));
+		}
 
 		constructor.prototype.route = function(path){
 			for(var i in _routers){
@@ -350,6 +436,8 @@ var Emylie = (function(){
 			this.dom.addClass('View-' + this.name.replace('.', '-'));
 			this.dom.innerHTML = this.template;
 
+			this.trigger(new CustomEvent('view.dom.loaded'));
+
 			var childrenSet = this.dom.getElementsByClassName('child-container');
 			if(childrenSet.length > 0){
 				this.childContentContainerDom = childrenSet[0];
@@ -369,6 +457,15 @@ var Emylie = (function(){
 		constructor.prototype.render = function(element){
 			if(element == undefined){element = document.body;}
 
+			var e = new CustomEvent('view.render', {
+				cancelable: true
+			});
+			this.trigger(e, this);
+
+			if(e.defaultPrevented){
+				return false;
+			}
+
 			if(this.layoutName != null){
 				var layout = this.app.viewFactory.produce(this.layoutName);
 				layout.childContentContainerDom.empty().appendChild(this.dom);
@@ -377,6 +474,8 @@ var Emylie = (function(){
 				element.empty().appendChild(this.dom);
 			}
 			
+			this.trigger(new CustomEvent('view.rendered', {}), this);
+
 			this.resize();
 		};
 
