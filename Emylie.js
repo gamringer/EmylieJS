@@ -362,7 +362,7 @@ var Emylie = (function(){
 		constructor.prototype.loadViews = function(path){
 			for(var i in this.ViewModels){
 				if(this.ViewModels[i] == null){
-					document.loadJS(this.ViewModelsPath + '/' + i.replace('.', '/') + '.js');
+					document.loadJS(this.ViewModelsPath + '/' + i + '/model.js');
 				}
 			}
 		}
@@ -383,8 +383,6 @@ var Emylie = (function(){
 					'name': name
 				}
 			}));
-
-			viewConstructor.prototype.app = this;
 
 			if(viewConstructor.prototype.layoutName != null){
 				if(
@@ -444,15 +442,28 @@ var Emylie = (function(){
 
 	ns.View = (function(){
 
-		var constructor = function(child){
+		var constructor = function(app, child){
+
+			this.app = app;
+
 			this.initEvents();
 			this.listen('view.template.loaded', function(){
-				XBTX.registerView(this.name, child);
+				if(!this.styleLoaded){
+					return;
+				}
+				app.registerView(this.name, child);
+			});
+			this.listen('view.style.loaded', function(){
+				if(!this.templateLoaded){
+					return;
+				}
+				app.registerView(this.name, child);
 			});
 		};
 		constructor.prototype = new ns.EventTarget();
 
 		constructor.prototype.templateURL = null;
+		constructor.prototype.styleLoaded = false;
 		constructor.prototype.templateLoaded = false;
 		constructor.prototype.template = '';
 		constructor.prototype.dom = null;
@@ -475,8 +486,20 @@ var Emylie = (function(){
 			}
 		};
 
-		constructor.prototype.loadTemplate = function(){
-			var request = new ns.HTTPRequest('get', this.templateURL);
+		constructor.prototype.loadTemplate = function(style){
+
+			if(style == undefined){style = false;}
+
+			if(style){
+				document.loadCSS(this.app.ViewModelsPath + '/' + this.name + '/style.css', null, (function(e){
+					this.styleLoaded = true;
+					this.trigger(new CustomEvent('view.style.loaded'));
+				}).bind(this));
+			}else{
+				this.styleLoaded = true;
+			}
+
+			var request = new ns.HTTPRequest('get', this.app.ViewModelsPath + '/' + this.name + '/template.html');
 			request.addEventListener('loadend', (function(e){
 				this.template = e.target.response;
 				this.templateLoaded = true;
