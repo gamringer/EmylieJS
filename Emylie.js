@@ -84,6 +84,37 @@ var Emylie = (function(){
 		return this;
 	}
 
+	HTMLDocument.prototype.loadCSS = function(url, reload, callback){
+		if(reload == undefined){reload = false;}
+
+		var load = true;
+		var head = this.getElementsByTagName('head')[0];
+		var links = head.getElementsByTagName('link');
+		/*
+		for(var i in links){
+			if(links[i].href == link){
+				load = reload;
+
+				break;
+			}
+		}
+		*/
+		if(load){
+			var link = document.createElement('link');
+			link.type = 'text/css';
+			link.rel = 'stylesheet';
+			link.href = url;
+
+			if(typeof callback == 'function'){
+				link.addEventListener('load', callback);
+			}
+
+			head.appendChild(link);
+		}
+
+		return this;
+	}
+
 	HTMLDocument.prototype.redirect = function(link){
 		window.location = link;
 	}
