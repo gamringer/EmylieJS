@@ -41,7 +41,7 @@ var Emylie = (function(){
 				}
 
 			}else{
-				var match = window.getComputedStyle(this)[property].match(/^rgb\((\d+), (\d+), (\d+)\)$/);
+				var match = window.getComputedStyle(this)[property].match(/^(rgba?)\((\d+), (\d+), (\d+)(, (\d+))?\)$/);
 				console.log('Color interpolation, TODO...', match);
 			}
 		}
@@ -433,6 +433,8 @@ var Emylie = (function(){
 				this.storage[storageAddress] = new viewModel();
 			}
 
+			this.storage[storageAddress].processRoute(route);
+
 			return this.storage[storageAddress];
 		};
 
@@ -462,7 +464,6 @@ var Emylie = (function(){
 		};
 		constructor.prototype = new ns.EventTarget();
 
-		constructor.prototype.templateURL = null;
 		constructor.prototype.styleLoaded = false;
 		constructor.prototype.templateLoaded = false;
 		constructor.prototype.template = '';
@@ -485,6 +486,8 @@ var Emylie = (function(){
 				this.childContentContainerDom = childrenSet[0];
 			}
 		};
+		
+		constructor.prototype.processRoute = function(route){}
 
 		constructor.prototype.loadTemplate = function(style){
 
