@@ -430,7 +430,7 @@ var Emylie = (function(){
 			}
 
 			if(this.storage[storageAddress] == undefined){
-				this.storage[storageAddress] = new viewModel();
+				this.storage[storageAddress] = new viewModel(route);
 			}
 
 			this.storage[storageAddress].processRoute(route);
