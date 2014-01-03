@@ -470,6 +470,7 @@ var Emylie = (function(){
 		constructor.prototype.dom = null;
 		constructor.prototype.app = null;
 		constructor.prototype.layoutName = null;
+		constructor.prototype.layout = null;
 		constructor.prototype.childContentContainerDom = undefined;
 		constructor.prototype.resize = function(){};
 
