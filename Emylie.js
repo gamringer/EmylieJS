@@ -222,6 +222,8 @@ var Emylie = (function(){
 	ns.Router = (function(){
 
 		var constructor = function(routes){
+			var routeParts;
+			
 			this._routes = routes;
 			for(var i in this._routes){
 				this._routes[i].routeParts = [];
@@ -251,20 +253,25 @@ var Emylie = (function(){
 					pathParts.length == this._routes[i].routeParts.length
 				 || (pathParts.length >= this._routes[i].routeParts.length-1 && this._routes[i].routeParts[this._routes[i].routeParts.length - 1] == '*')
 				){
-					var route = {};
+					var route = {'_parts':[]};
 					for(var j in this._routes[i].options){
 						route[j] = this._routes[i].options[j];
 					}
-					
-					for(var j in this._routes[i].routeParts){
-						if(this._routes[i].routeParts[j][0] == ':'){
-							route[this._routes[i].routeParts[j].substr(1)] = pathParts[j];
-						}else if(this._routes[i].routeParts[j] == '*'){
-							break;
-						}else if(this._routes[i].routeParts[j] != pathParts[j]){
-							route = null;
-							break;
+
+					var recording = true;					
+					for(var j in pathParts){
+						if(recording){
+							if(this._routes[i].routeParts[j][0] == ':'){
+								route[this._routes[i].routeParts[j].substr(1)] = pathParts[j];
+							}else if(this._routes[i].routeParts[j] == '*'){
+								recording = false;
+							}else if(this._routes[i].routeParts[j] != pathParts[j]){
+								route = null;
+								break;
+							}
 						}
+						
+						route._parts.push(pathParts[j]);
 					}
 
 					if(route != null){
@@ -335,6 +342,8 @@ var Emylie = (function(){
 				}
 			}
 
+			this.currentRoute = route;
+			
 			this.trigger(new CustomEvent('app.routed', {
 				detail: {
 					path: path,
