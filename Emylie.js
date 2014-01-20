@@ -5,6 +5,18 @@ var Emylie = (function(){
 		return window.localStorage;
 	}
 
+	Object.size = function(obj) {
+	
+		var size = 0, key;
+		for (key in obj) {
+			if (obj.hasOwnProperty(key)){
+				size++;
+			}
+		}
+	
+		return size;
+	};
+
 	Element.prototype.addClass = function(item){
 		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '') + ' ' + item;
 
