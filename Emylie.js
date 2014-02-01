@@ -17,6 +17,26 @@ var Emylie = (function(){
 		return size;
 	};
 
+	NodeList.prototype.map = function(callback){
+		return Array.prototype.map.call(this, callback);
+	};
+
+	Element.prototype.selectText = function(){
+		var range, selection;
+		;
+		if (document.body.createTextRange) {
+			range = document.body.createTextRange();
+			range.moveToElementText(this);
+			range.select();
+		} else if (window.getSelection) {
+			selection = window.getSelection();
+			range = document.createRange();
+			range.selectNodeContents(this);
+			selection.removeAllRanges();
+			selection.addRange(range);
+		}
+	};
+
 	Element.prototype.addClass = function(item){
 		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '') + ' ' + item;
 
@@ -34,6 +54,15 @@ var Emylie = (function(){
 
 		return this;
 	};
+
+	if(Element.prototype.prependChild == undefined){
+		Element.prototype.prependChild = function(el){
+
+			this.insertBefore(el, this.firstChild);
+
+			return this;
+		};
+	}
 
 	Element.prototype.animate = function(properties, duration){
 
