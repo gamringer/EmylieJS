@@ -87,13 +87,13 @@ var Emylie = (function(){
 			}
 		}
 
-		var interpolation = new Emylie.interpolation(1000);
+		var interpolation = new Emylie.interpolation(duration);
 
 		interpolation.listen('interpolation.update', (function(e){
 			for(var property in properties){
 				if(deltas[property] != undefined){
 					if(deltas[property].suffix != undefined){
-						this.style[property] = deltas[property].original + deltas[property].target - deltas[property].original * e.detail.progress + deltas[property].suffix;
+						this.style[property] = deltas[property].original + (deltas[property].target - deltas[property].original) * e.detail.progress + deltas[property].suffix;
 					}
 				}
 			}
