@@ -125,7 +125,11 @@ var Emylie = (function(){
 		}
 
 		if(load){
-			document.writeln('<script type="text/javascript" src="'+link+'"></script>');
+			var script = this.createElement('script');
+			script.type = "text/javascript";
+			script.src = link;
+
+			head.appendChild(script);
 		}
 
 		return this;
