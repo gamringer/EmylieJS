@@ -2,7 +2,13 @@ var Emylie = (function(){
 	var ns = {};
 
 	ns.getStorage = function(){
-		return window.localStorage;
+		var storage = {};
+
+		if(window.localStorage != undefined){
+			storage = window.localStorage;
+		}
+
+		return storage;
 	}
 
 	Object.size = function(obj) {
