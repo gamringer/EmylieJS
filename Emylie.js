@@ -361,6 +361,7 @@ var Emylie = (function(){
 			this.ViewStoragePatterns = {};
 			this.ViewModelsCount = 0;
 			this.layouts = {};
+			this.state = 0;
 
 			this.ui = {
 				width: window.innerWidth,
@@ -372,6 +373,11 @@ var Emylie = (function(){
 			_apps.push(this);
 		}
 		constructor.prototype = new ns.EventTarget();
+		constructor.prototype.STATE_LOADING = 0;
+		constructor.prototype.STATE_LOADED = 1;
+		constructor.prototype.STATE_ACTIVE = 2;
+		constructor.prototype.STATE_HOLD = 3;
+		constructor.prototype.STATE_TERMINATED = 4;
 
 		constructor.prototype.redirect = function(hash){
 			window.location.hash = hash;
@@ -474,7 +480,6 @@ var Emylie = (function(){
 
 	ns.ViewFactory = (function(){
 
-
 		var constructor = function(app){
 			this.storage = {};
 			this.app = app;
@@ -499,7 +504,6 @@ var Emylie = (function(){
 		};
 
 		return constructor;
-
 	})();
 
 	ns.View = (function(){
