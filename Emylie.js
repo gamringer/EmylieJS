@@ -511,6 +511,7 @@ var Emylie = (function(){
 		var constructor = function(app, child){
 
 			this.app = app;
+			this.language = null;
 
 			this.initEvents();
 			this.listen('view.template.loaded', function(){
@@ -542,14 +543,11 @@ var Emylie = (function(){
 
 			this.dom = document.createElement('div');
 			this.dom.addClass('View-' + this.name.replace('.', '-'));
-			this.dom.innerHTML = this.template;
+
+			this.dom.innerHTML = ns.Renderer.render(this.template, this);
+			this.childContentContainerDom = this.dom.querySelector('.child-container');
 
 			this.trigger(new CustomEvent('view.dom.loaded'));
-
-			var childrenSet = this.dom.getElementsByClassName('child-container');
-			if(childrenSet.length > 0){
-				this.childContentContainerDom = childrenSet[0];
-			}
 		};
 		
 		constructor.prototype.processRoute = function(route){}
@@ -576,8 +574,23 @@ var Emylie = (function(){
 			request.send();
 		};
 
-		constructor.prototype.render = function(element){
+		constructor.prototype.refresh = function(){
+			this.dom.innerHTML = ns.Renderer.render(this.template, this);
+			this.childContentContainerDom = this.dom.querySelector('.child-container');
+
+			this.trigger(new CustomEvent('view.dom.loaded'));
+
+			this.language = this.app.dictionnary.language;
+		}
+
+		constructor.prototype.render = function(element, refresh){
 			if(element == undefined){element = document.body;}
+			if(refresh == undefined){refresh = null;}
+			
+			if(refresh){
+				this.refresh();		
+			}
+
 
 			var e = new CustomEvent('view.render', {
 				cancelable: true
@@ -590,8 +603,11 @@ var Emylie = (function(){
 
 			if(this.layoutName != null){
 				var layout = this.app.viewFactory.produce(this.layoutName);
+				if(refresh){
+					layout.refresh();		
+				}
 				layout.childContentContainerDom.empty().appendChild(this.dom);
-				layout.render(element);
+				layout.render(element, false);
 			}else{
 				element.empty().appendChild(this.dom);
 			}
@@ -599,6 +615,72 @@ var Emylie = (function(){
 			this.trigger(new CustomEvent('view.rendered', {}), this);
 
 			this.resize();
+
+			return this;
+		};
+
+		return constructor;
+	})();
+
+	ns.Renderer = (function(){
+
+		var pattern = /<%= *((([\w_]+\.?)*)?[\w_]+) *%>/ig;
+
+		return {
+			render: function(template, data){
+				var result = template;
+
+				return result.replace(pattern, function(){
+					var path = arguments[1].split('.');
+					var location = data;
+					
+					for(var i in path){
+						location = location[path[i]];
+						if(location == undefined){
+							return arguments[0]
+						}
+					}
+					
+					return location;
+				});
+			}
+		};
+	})();
+
+	ns.Promise = (function(){
+		var constructor = function(promise, options){
+			this.promise = promise;
+			if(options != undefined){
+				this.options = options;
+			}
+
+			this.options = {};
+			this.futures = {};
+			this.present = {};
+		};
+
+		constructor.prototype.bind = function(name, callback){
+			this.futures[name] = this.futures[name] || [];
+			this.futures[name].push(callback);
+
+			if(this.present[name] == true){
+				callback(this);
+			}
+		};
+
+		constructor.prototype.hand = function(name){
+			this.present[name] = true;
+			if(this.futures[name] != undefined){
+				this.futures[name].map((function(future){
+					future(this);
+				}).bind(this));
+			}
+		};
+
+		constructor.prototype.keep = function(){
+			this.promise(this);
+
+			return this;
 		};
 
 		return constructor;
