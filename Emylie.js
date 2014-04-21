@@ -44,12 +44,12 @@ var Emylie = (function(){
 	};
 
 	Element.prototype.addClass = function(item){
-		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '') + ' ' + item;
+		this.className = this.className.replace(new RegExp('(^|\\s)\\b' + item + '\\b($|\\s)'), '') + ' ' + item;
 
 		return this;
 	}
 	Element.prototype.removeClass = function(item){
-		this.className = this.className.replace(new RegExp('\\b' + item + '\\b'), '');
+		this.className = this.className.replace(new RegExp('(^|\\s)\\b' + item + '\\b($|\\s)'), ' ');
 
 		return this;
 	}
