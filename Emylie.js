@@ -84,6 +84,7 @@ var Emylie = (function(){
 		for(var property in properties){
 
 			var match = window.getComputedStyle(this)[property].match(/^\d+(\w+)$/);
+			
 			if(match != null){
 				deltas[property] = {
 					original: parseInt(match[0]),
@@ -92,8 +93,16 @@ var Emylie = (function(){
 				}
 
 			}else{
-				var match = window.getComputedStyle(this)[property].match(/^(rgba?)\((\d+), (\d+), (\d+)(, (\d+))?\)$/);
-				console.log('Color interpolation, TODO...', match);
+				//var match = window.getComputedStyle(this)[property].match(/^(rgba?)\((\d+), (\d+), (\d+)(, (\d+))?\)$/);
+				//console.log('Color interpolation, TODO...', match);
+				var match = window.getComputedStyle(this)[property].match(/^\d+$/);
+				if(match != null){
+					deltas[property] = {
+						original: parseInt(match[0]),
+						target: properties[property],
+						suffix: ''
+					}
+				}
 			}
 		}
 
