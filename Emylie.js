@@ -27,6 +27,10 @@ var Emylie = (function(){
 		return Array.prototype.map.call(this, callback);
 	};
 
+	NodeList.prototype.forEach = function(callback){
+		return Array.prototype.forEach.call(this, callback);
+	};
+
 	Element.prototype.selectText = function(){
 		var range, selection;
 		;
