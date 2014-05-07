@@ -570,6 +570,7 @@ var Emylie = (function(){
 		constructor.prototype.layout = null;
 		constructor.prototype.childContentContainerDom = undefined;
 		constructor.prototype.resize = function(){};
+		constructor.wardrobe = {};
 
 		constructor.prototype.init = function(){
 
@@ -649,6 +650,27 @@ var Emylie = (function(){
 			this.resize();
 
 			return this;
+		};
+
+		constructor.prototype.dress = function(dresses){
+			if(dresses == undefined){dresses = [];}
+			dresses.forEach((function(dress){
+				this.dom.querySelectorAll('[dress-'+dress+']').forEach(function(el){
+					ns.View.wardrobe[dress].putOn(el);
+				});
+			}).bind(this));
+		};
+
+		return constructor;
+	})();
+
+	ns.Dress = (function(){
+		var constructor = function(behaviour){
+			this.behaviour = behaviour;
+		};
+
+		constructor.prototype.putOn = function(el){
+			this.behaviour(el);
 		};
 
 		return constructor;
