@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"><![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+	<title>Replay CRM</title>
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-script-type" content="text/javascript" />
+	<meta http-equiv="content-style-type" content="text/css" />
+	<meta http-equiv="content-language" content="en-CA" />
+
+	<meta name="viewport" content="width=device-width,height=device-height,user-scalable=no" />
+
+	<script type="text/javascript" src="Emylie.js"></script>
+	<script type="text/javascript">
+		Emylie.View.wardrobe.button = new Emylie.Dress(function(el){
+			el.addEventListener('click', function(){
+				console.log('allo');
+			});
+		});
+	</script>
+
+</head>
+<body>
+
+	<script type="text/javascript">
+
+		var view = (function(){
+			var constructor = function(){
+				this.listen('view.dom.loaded', (function(e){
+					Emylie.View.wardrobe.button.putOn(this.dom.querySelector('#foo'));
+				}).bind(this));
+
+				this.template = '<div id="foo" dress-button>allo</div>';
+				
+				this.init();
+			};
+			constructor.prototype = new Emylie.View(null, constructor);
+			constructor.prototype.name = 'Demo.dress';
+
+			return new constructor();
+		})();
+		view.render();
+
+	</script>
+</body>
+</html>
