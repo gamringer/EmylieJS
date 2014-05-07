@@ -655,10 +655,10 @@ var Emylie = (function(){
 		constructor.prototype.dress = function(dresses){
 			if(dresses == undefined){dresses = constructor.wardrobe;}
 			dresses.forEach((function(dress){
-				this.dom.querySelectorAll('[dress-'+dress+']').forEach(function(el){
+				this.dom.querySelectorAll('[dress-'+dress+']').forEach((function(el){
 					el.scope = this;
 					ns.View.wardrobe[dress].putOn(el);
-				});
+				}).bind(this));
 			}).bind(this));
 		};
 
