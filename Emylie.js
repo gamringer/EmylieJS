@@ -23,6 +23,17 @@ var Emylie = (function(){
 		return size;
 	};
 
+	Object.prototype.forEach = function(callback) {
+	
+		for (var key in this) {
+			if (this.hasOwnProperty(key)){
+				callback(key, this[key]);
+			}
+		}
+	
+		return this;
+	};
+
 	NodeList.prototype.map = function(callback){
 		return Array.prototype.map.call(this, callback);
 	};
