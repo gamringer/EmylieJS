@@ -42,6 +42,10 @@ var Emylie = (function(){
 		return Array.prototype.forEach.call(this, callback);
 	};
 
+	HTMLCollection.prototype.forEach = function(callback){
+		return Array.prototype.forEach.call(this, callback);
+	};
+
 	Element.prototype.selectText = function(){
 		var range, selection;
 		;
