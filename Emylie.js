@@ -656,6 +656,7 @@ var Emylie = (function(){
 			if(dresses == undefined){dresses = constructor.wardrobe;}
 			dresses.forEach((function(dress){
 				this.dom.querySelectorAll('[dress-'+dress+']').forEach(function(el){
+					el.scope = this;
 					ns.View.wardrobe[dress].putOn(el);
 				});
 			}).bind(this));
