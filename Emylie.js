@@ -58,6 +58,14 @@ var Emylie = (function(){
 		}
 	};
 
+	String.prototype.pad = function(character, len){
+		return (len > this.length ? (new Array(len - this.length + 1)).join(character) : '') + this.toString();
+	}
+
+	Number.prototype.pad = function(character, len){
+		return this.toString().pad(character, len);
+	}
+
 	Element.prototype.addClass = function(item){
 		this.className = this.className.replace(new RegExp('(^|\\s)\\b' + item + '\\b($|\\s)'), '') + ' ' + item;
 
