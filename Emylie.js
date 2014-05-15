@@ -24,6 +24,7 @@ var Emylie = (function(){
 	};
 
 	Object.prototype.forEach = function(callback) {
+		if(typeof callback != 'function'){return;}
 	
 		for (var key in this) {
 			if (this.hasOwnProperty(key)){
