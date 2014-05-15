@@ -23,7 +23,7 @@ var Emylie = (function(){
 		return size;
 	};
 
-	Object.prototype.forEach = function(callback) {
+	Object.forEach = function(callback) {
 		if(typeof callback != 'function'){return;}
 	
 		for (var key in this) {
