@@ -23,11 +23,11 @@ var Emylie = (function(){
 		return size;
 	};
 
-	Object.forEach = function(callback) {
+	Object.forEach = function(obj, callback) {
 		if(typeof callback != 'function'){return;}
 	
-		for (var key in this) {
-			if (this.hasOwnProperty(key)){
+		for (var key in obj) {
+			if (obj.hasOwnProperty(key)){
 				callback(key, this[key]);
 			}
 		}
