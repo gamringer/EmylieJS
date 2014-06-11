@@ -538,7 +538,7 @@ var Emylie = (function(){
 			var viewModel = this.app.ViewModels[viewName];
 			var storagePattern = this.app.ViewStoragePatterns[viewName];
 
-			storageAddress = viewName;
+			var storageAddress = viewName;
 			if(storagePattern != undefined){
 				storageAddress = storagePattern(route);
 			}
