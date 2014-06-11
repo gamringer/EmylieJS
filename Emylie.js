@@ -35,6 +35,18 @@ var Emylie = (function(){
 		return obj;
 	};
 
+	Date.prototype.format = function(pattern){
+		pattern = pattern.replace('Y', this.getFullYear());
+
+		pattern = pattern.replace('m', (this.getMonth()+1).pad('0', 2));
+		pattern = pattern.replace('n', this.getMonth()+1);
+
+		pattern = pattern.replace('d', this.getDate().pad('0', 2));
+		pattern = pattern.replace('j', this.getDate());
+
+		return pattern;
+	}
+
 	NodeList.prototype.map = function(callback){
 		return Array.prototype.map.call(this, callback);
 	};
