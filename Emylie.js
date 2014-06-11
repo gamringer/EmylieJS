@@ -28,11 +28,11 @@ var Emylie = (function(){
 	
 		for (var key in obj) {
 			if (obj.hasOwnProperty(key)){
-				callback(key, this[key]);
+				callback(key, obj[key]);
 			}
 		}
 	
-		return this;
+		return obj;
 	};
 
 	NodeList.prototype.map = function(callback){
