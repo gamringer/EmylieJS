@@ -44,6 +44,10 @@ var Emylie = (function(){
 		pattern = pattern.replace('d', this.getDate().pad('0', 2));
 		pattern = pattern.replace('j', this.getDate());
 
+		pattern = pattern.replace('H', (this.getHours()).pad('0', 2));
+		pattern = pattern.replace('i', (this.getMinutes()).pad('0', 2));
+		pattern = pattern.replace('s', (this.getSeconds()).pad('0', 2));
+
 		return pattern;
 	}
 
