@@ -679,7 +679,7 @@ var Emylie = (function(){
 			Object.forEach(dresses, (function(dress){
 				this.dom.querySelectorAll('[dress-'+dress+']').forEach((function(el){
 					el.scope = this;
-					ns.View.wardrobe[dress].putOn(el);
+					ns.View.wardrobe[dress].putOn(el, {});
 				}).bind(this));
 			}).bind(this));
 		};
@@ -693,6 +693,8 @@ var Emylie = (function(){
 		};
 
 		constructor.prototype.putOn = function(el, options){
+			options = options || {};
+
 			this.behaviour(el, options);
 		};
 
