@@ -166,8 +166,9 @@ var Emylie = (function(){
 		if(reload == undefined){reload = false;}
 
 		var load = true;
-		var head = this.getElementsByTagName('head')[0];
-		var scripts = head.getElementsByTagName('script');
+		var head = this.querySelector('head');
+		var body = this.querySelector('body');
+		var scripts = this.querySelectorAll('script');
 
 		for(var i in scripts){
 			if(scripts[i].src == link){
@@ -176,13 +177,13 @@ var Emylie = (function(){
 				break;
 			}
 		}
-
+		
 		if(load){
 			var script = this.createElement('script');
 			script.type = "text/javascript";
 			script.src = link;
 
-			head.appendChild(script);
+			(head || body).appendChild(script);
 		}
 
 		return this;
