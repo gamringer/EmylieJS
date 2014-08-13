@@ -691,8 +691,8 @@ var Emylie = (function(){
 			this.behaviour = behaviour;
 		};
 
-		constructor.prototype.putOn = function(el){
-			this.behaviour(el);
+		constructor.prototype.putOn = function(el, options){
+			this.behaviour(el, options);
 		};
 
 		return constructor;
